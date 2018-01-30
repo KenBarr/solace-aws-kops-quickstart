@@ -41,13 +41,16 @@ Follow the link in resultant email and it will download a Solace VMR image with 
 (Part II) Deploy the VMR docker image to your Docker registry of choice. You can utilize the AWS Elastic Container Registry to host the VMR Docker image. For more information, refer to Amazon [Elastic Container Registry](https://docs.aws.amazon.com/AmazonECS/latest/developerguide/Welcome.html).
 
 Assuming you have docker installed here are the basic steps from the above documentation. 
-* Download the Docker container image as per PartI above.
-* Load the image into local registry ```sh docker load -i <soltr-X.X.X.XXX-vmr-yyyy.tar.gz>```
-* Create a repository ```aws ecr create-repository --repository-name solace-vmr```
-    * note repositoryUri from output
-* tag docker image ```docker tag solace-app <repositoryUri>```
-* log into ecr ```aws ecr get-login --no-include-email```
-* docker push image ```docker push  <repositoryUri>```
+* Download the Docker container image as per Part I above.
+
+| Action | Syntex |
+| ------ | ------ |
+| Load the image into local registry | ```sh docker load -i <soltr-X.X.X.XXX-vmr-yyyy.tar.gz>```    |
+| Create a repository                | ```aws ecr create-repository --repository-name solace-vmr``` |
+|                                    |      note repositoryUri from output                          |
+| tag docker image                   | ```docker tag solace-app <repositoryUri>```                  |
+| log into ecr                       | ```aws ecr get-login --no-include-email```                   |
+| docker push image                  | ```docker push  <repositoryUri>```                           |
 
 **Step 3**: Deploy a Solace VMR release onto Kubernetes.
 Follow Step five from the [Solace Kubernetes QuickStart](https://github.com/SolaceProducts/solace-kubernetes-quickstart#how-to-deploy-a-vmr-onto-kubernetes)
