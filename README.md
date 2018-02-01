@@ -32,11 +32,32 @@ When it comes time to create your [cluster](https://github.com/kubernetes/kops/b
 
 Ensure that you validate the cluster is [up and functional](https://github.com/kubernetes/kops/blob/master/docs/aws.md#use-the-cluster).
 
+Here is an example of a cluster ready to accept deployments:
+```sh
+kops validate cluster
+Using cluster from kubectl context: solacecluster.k8s.local
+
+Validating cluster solacecluster.k8s.local
+
+INSTANCE GROUPS
+NAME                    ROLE    MACHINETYPE     MIN     MAX     SUBNETS
+master-us-east-1a       Master  c4.large        1       1       us-east-1a
+nodes                   Node    m4.large        3       3       us-east-1a,us-east-1b,us-east-1c
+
+NODE STATUS
+NAME                            ROLE    READY
+ip-172-20-106-109.ec2.internal  node    True
+ip-172-20-40-81.ec2.internal    master  True
+ip-172-20-48-8.ec2.internal     node    True
+ip-172-20-71-48.ec2.internal    node    True
+
+Your cluster solacecluster.k8s.local is ready
+```
 
 **Step 2**: Load a Solace VMR image into AWS Elastic Container Registery, (ECR).
 (Part I) Download a copy of the Solace VMR Software. Follow Step two from the [Solace Kubernetes QuickStart](https://github.com/SolaceProducts/solace-kubernetes-quickstart#how-to-deploy-a-vmr-onto-kubernetes) to download the VMR software (Community Edition for single-node deployments, Evaluation Edition for VMR HA deployments)
 
-Follow the link in resultant email and it will download a Solace VMR image with a name simular to ```soltr-8.7.0.1030-vmr-evaluation-docker.tar.gz```.
+Follow the link in resultant email and it will download a Solace VMR image with a name simular to ```soltr-8.8.0.1027-vmr-evaluation-docker.tar.gz```.
 
 (Part II) Deploy the VMR docker image to your Docker registry of choice. You can utilize the AWS Elastic Container Registry to host the VMR Docker image. For more information, refer to Amazon [Elastic Container Registry](https://docs.aws.amazon.com/AmazonECS/latest/developerguide/Welcome.html).
 
@@ -45,22 +66,26 @@ Assuming you have docker installed here are the basic steps from the above docum
 
 | Action | Syntex |
 | ------ | ------ |
-| Load the image into local registry | ```sh docker load -i <soltr-X.X.X.XXX-vmr-yyyy.tar.gz>```    |
-| Create a repository                | ```aws ecr create-repository --repository-name solace-vmr``` |
-|                                    |      note repositoryUri from output                          |
-| tag docker image                   | ```docker tag solace-app <repositoryUri>```                  |
-| log into ecr                       | ```aws ecr get-login --no-include-email```                   |
-| docker push image                  | ```docker push  <repositoryUri>```                           |
+| Load the image into local registry | ``` docker load -i <soltr-X.X.X.XXX-vmr-evaluation-docker.tar.gz>```    |
+| Get image ID of container          | ``` docker images``` note IMAGE ID 
+| Create a repository                | ```aws ecr create-repository --repository-name solace-vmr```  note repositoryUri|
+| tag docker image                   | ```docker tag <imageID> <repositoryUri>:X.X.X.XXXX-evaluation```  |
+| log into ecr                       | ```eval $(aws ecr get-login | sed 's|https://||')```             |
+| docker push image                  | ```docker push  <repositoryUri>:X.X.X.XXXX-evaluation```          |
+
+You should now be able to view your images in the Elastic Container Registry,(ECR):
+
+![alt text](/images/ecr-populated.png "Elastic Container Registry")
 
 **Step 3**: Deploy a Solace VMR release onto Kubernetes.
 Follow Step five from the [Solace Kubernetes QuickStart](https://github.com/SolaceProducts/solace-kubernetes-quickstart#how-to-deploy-a-vmr-onto-kubernetes)
 Ensure you set the environment correctly for:
 ```sh
   PASSWORD=<YourAdminPassword>
-  SOLACE_IMAGE_URL=<repositoryUri>:latest
+  SOLACE_IMAGE_URL=<repositoryUri>:X.X.X.XXXX-evaluation
   CLOUD_PROVIDER=aws
 ```
-
 ```sh
 ./start_vmr.sh -c ${CLOUD_PROVIDER} -p ${PASSWORD} -i ${SOLACE_IMAGE_URL} -v values-examples/small-persist-ha-provisionPvc.yaml
 ```
+Follow the solace-kubernetes-quickstart to see how to validate the cluster and test VMR.
