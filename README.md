@@ -19,14 +19,20 @@ This is a 3 step process:
 3. Deploy a Solace VMR release onto Kubernetes.
 
 **Step 1**: Install Kubernetes in AWS.
+
+Create an S3 bucket to contain cluster state:
+![alt text](/images/Create_Bucket.png "S3 bucket for Kubernetes cluster state")
+
 Kubernetes documentation outlines several ways to [run Kubernetes on AWS EC2s](https://kubernetes.io/docs/getting-started-guides/aws/). For the remainder of this guide we will use Kubernetes Operations, (kops), folowing this [guideKOPS](https://github.com/kubernetes/kops/blob/master/docs/aws.md).  For simplisity of demonstration, useing .k8s.local and skipped setting up DNS.
 
 When it comes time to create your [cluster](https://github.com/kubernetes/kops/blob/master/docs/aws.md#create-cluster-configuration), recommendation is to create 3 worker nodes across 3 zone in a region.  For example:
 
 ```sh
  kops create cluster --node-count 3 \
+                     -state s3://solacecluster-k8s \
                     --zones us-east-1a,us-east-1b,us-east-1c \
                     --node-size t2.large \
+                    --yes \
                     --kubernetes-version 1.8.5  solacecluster.k8s.local
 ```
 
