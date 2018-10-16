@@ -29,11 +29,11 @@ When it comes time to create your [cluster](https://github.com/kubernetes/kops/b
 
 ```sh
  kops create cluster --node-count 3 \
-                     -state s3://solacecluster-k8s \
+                    --state s3://solacecluster-k8s \
                     --zones us-east-1a,us-east-1b,us-east-1c \
                     --node-size t2.large \
                     --yes \
-                    --kubernetes-version 1.8.5  solacecluster.k8s.local
+                    --kubernetes-version 1.10.0  solacecluster.k8s.local
 ```
 
 Ensure that you validate the cluster is [up and functional](https://github.com/kubernetes/kops/blob/master/docs/aws.md#use-the-cluster).
